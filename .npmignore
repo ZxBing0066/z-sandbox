@@ -4,3 +4,4 @@ tsconfig.json
 test.js
 .editorconfig
 test
+yarn.lock
