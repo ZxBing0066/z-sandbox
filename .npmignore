@@ -1,0 +1,5 @@
+webpack.config.js
+.babelrc
+tsconfig.json
+test.js
+.editorconfig

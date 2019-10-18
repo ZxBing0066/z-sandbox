@@ -1,0 +1,48 @@
+{
+  "name": "z-sandbox",
+  "version": "0.0.1",
+  "description": "A simple javascript sandbox",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ZxBing0066/z-sandbox.git"
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "rm -rf build/ && webpack",
+    "build:lib": "rm -rf lib/ && babel index.ts -d lib -x \".ts\" --source-maps",
+    "analyzer": "ANALYZER=true NODE_ENV=production webpack",
+    "before-publish": "npm run build && npm run build:lib",
+    "publish:patch": "npm run before-publish && npm version patch && npm publish"
+  },
+  "keywords": [
+    "javascript",
+    "sandbox",
+    "js-sandbox"
+  ],
+  "bugs": {
+    "url": "https://github.com/ZxBing0066/z-sandbox/issues"
+  },
+  "homepage": "https://github.com/ZxBing0066/z-sandbox#readme",
+  "author": "ZxBing0066@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.6.4",
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
+    "@babel/plugin-transform-runtime": "^7.6.2",
+    "@babel/preset-env": "^7.6.3",
+    "@babel/preset-typescript": "^7.6.0",
+    "ava": "^2.4.0",
+    "babel-loader": "^8.0.6",
+    "jasmine": "^3.5.0",
+    "jest": "^24.9.0",
+    "webpack": "^4.41.2",
+    "webpack-bundle-analyzer": "^3.6.0",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.2"
+  },
+  "dependencies": {
+    "core-js": "^3"
+  }
+}
