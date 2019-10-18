@@ -3,3 +3,4 @@ webpack.config.js
 tsconfig.json
 test.js
 .editorconfig
+test
