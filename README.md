@@ -2,7 +2,19 @@
 
 ## How to use
 
-```JavaScript
+1. install from the npm
+
+```bash
+npm install z-sandbox
+# or
+yarn add z-sandbox
+```
+
+2. use in your code
+
+```javascript
+import { createSandbox } from 'z-sandbox';
+
 const sandboxOptions = {
     // default: true
     useStrict: true,
@@ -21,7 +33,6 @@ const context = {
 
 const sandbox = createSandbox(context, sandboxOptions);
 
-
 sandbox`
     // should be undefined
     console.log(blacklistContent);
@@ -38,7 +49,7 @@ sandbox`
     window.testInject = true;
     // should be true
     console.log(window.testInject);
-`
+`;
 // should be undefined, false
 console.log(window.testInject, 'testInject' in window);
 ```
