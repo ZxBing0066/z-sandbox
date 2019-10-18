@@ -2,16 +2,14 @@
 
 ## How to use
 
-1. install from the npm
-
+### Install from the npm
 ```bash
 npm install z-sandbox
 # or
 yarn add z-sandbox
 ```
 
-2. use in your code
-
+### Use in your code
 ```javascript
 import { createSandbox } from 'z-sandbox';
 
