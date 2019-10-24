@@ -66,7 +66,7 @@ test('sandbox full test', () => {
             b: 2,
             expect
         },
-        { useWith: true }
+        { useStrict: true, interceptFunction: true, interceptEval: true }
     );
     sandbox(`
         var b = 3;
@@ -99,6 +99,9 @@ test('sandbox full test', () => {
             return this;
         }
         expect(returnThis()).toBe(undefined);
+        expect(Function === function(){}.constructor).toBe(false);
+        expect(Function('return this')()).toBe(window);
+        expect(eval('this')()).toBe(window);
     `);
     expect('a' in window).toBe(false);
     try {
