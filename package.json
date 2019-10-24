@@ -8,7 +8,7 @@
     "url": "git+https://github.com/ZxBing0066/z-sandbox.git"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest test/test.js",
     "build": "rm -rf build/ && webpack",
     "build:lib": "rm -rf lib/ && babel index.ts -d lib -x \".ts\" --source-maps",
     "analyzer": "ANALYZER=true NODE_ENV=production webpack",

@@ -1,4 +1,4 @@
-import { createSandbox } from './build/index.min.js';
+import { createSandbox } from '../build/index.min.js';
 import fs from 'fs';
 
 // test for use global variables as common variables
@@ -95,6 +95,10 @@ test('sandbox full test', () => {
         expect(this.f).toBe(7);
         expect(window.f).toBe(7);
         expect(f).toBe(7);
+        function returnThis() {
+            return this;
+        }
+        expect(returnThis()).toBe(undefined);
     `);
     expect('a' in window).toBe(false);
     try {
@@ -121,6 +125,41 @@ test('sandbox full test', () => {
         expect(!!error).toBe(true);
     }
     expect('f' in window).toBe(false);
+});
+
+test('sandbox readme', () => {
+    const sandboxOptions = {
+        // default: true
+        useStrict: true,
+        // default: false
+        useWith: true,
+        // default: true
+        inheritWindow: true,
+        // default: []
+        blacklist: ['blacklistContent']
+    };
+
+    const context = {
+        blacklistContent: "this content is in the blacklist, you can't get it in the sandbox",
+        hello: 'hello z-sandbox'
+    };
+
+    const sandbox = createSandbox(context, sandboxOptions);
+
+    sandbox`
+        expect(blacklistContent).toBe(undefined);
+        expect(window.blacklistContent).toBe(undefined);
+        expect(this.blacklistContent).toBe(undefined);
+        expect(self.blacklistContent).toBe(undefined);
+
+        expect(hello).toBe('hello z-sandbox');
+
+        window.testInject = true;
+
+        expect(window.testInject).toBe(true);
+    `;
+    expect(window.testInject).toBe(undefined);
+    expect('testInject' in window).toBe(false);
 });
 
 test('sandbox run lodash', () => {
@@ -161,37 +200,72 @@ test('sandbox run lodash', () => {
     }
 });
 
-test('sandbox readme', () => {
-    const sandboxOptions = {
-        // default: true
-        useStrict: true,
-        // default: false
-        useWith: true,
-        // default: true
-        inheritWindow: true,
-        // default: []
-        blacklist: ['blacklistContent']
-    };
-
-    const context = {
-        blacklistContent: "this content is in the blacklist, you can't get it in the sandbox",
-        hello: 'hello z-sandbox'
-    };
-
-    const sandbox = createSandbox(context, sandboxOptions);
-
-    sandbox`
-        expect(blacklistContent).toBe(undefined);
-        expect(window.blacklistContent).toBe(undefined);
-        expect(this.blacklistContent).toBe(undefined);
-        expect(self.blacklistContent).toBe(undefined);
-
-        expect(hello).toBe('hello z-sandbox');
-
-        window.testInject = true;
-
-        expect(window.testInject).toBe(true);
+test('sandbox run reactjs', () => {
+    const react15Script = fs.readFileSync('./test/react15-with-addons.js');
+    const react16Script = fs.readFileSync('./test/react16.development.js');
+    const react15Sandbox = createSandbox(
+        {
+            expect
+        },
+        { useWith: true }
+    );
+    react15Sandbox(`
+        ${react15Script};
+    `);
+    const react16Sandbox = createSandbox(
+        {
+            expect
+        },
+        { useWith: true }
+    );
+    react16Sandbox(`
+        ${react16Script};
+    `);
+    react15Sandbox`
+        expect(React.version).toBe('15.6.2');
+        expect('Suspense' in React).toBe(false);
+        expect('useCallback' in React).toBe(false);
+        expect('useContext' in React).toBe(false);
+        expect(React.createElement('h1', { className: 'greeting' }, 'Hello, world!').type).toBe('h1');
     `;
-    expect(window.testInject).toBe(undefined);
-    expect('testInject' in window).toBe(false);
+    react16Sandbox`
+        expect(React.version).toBe('16.11.0');
+        expect('Suspense' in React).toBe(true);
+        expect('useCallback' in React).toBe(true);
+        expect('useContext' in React).toBe(true);
+        expect(React.createElement('h1', { className: 'greeting' }, 'Hello, world!').type).toBe('h1');
+    `;
+    expect('React' in window).toBe(false);
+    try {
+        console.log(React);
+    } catch (error) {
+        expect(!!error).toBe(true);
+    }
+});
+
+test('sandbox run performance', () => {
+    const sandbox = createSandbox(
+        {
+            expect
+        },
+        { useWith: true }
+    );
+    const performanceTest = type => {
+        const now = new Date();
+        const result = [];
+        for (let i = 0; i < 1000000; i++) {
+            result.push(i * i);
+        }
+        console.log(type, 'time: ', new Date() - now);
+        return new Date() - now;
+    };
+    sandbox(`
+        const performanceTest = ${performanceTest.toString()};
+        performanceTest('sandbox');
+    `);
+    eval(`
+        const performanceTest = ${performanceTest.toString()};
+        performanceTest('eval');
+    `);
+    performanceTest('native');
 });
