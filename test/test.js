@@ -103,6 +103,7 @@ test('sandbox full test', () => {
         expect(Function('return this')()).toBe(window);
         expect(eval('this')()).toBe(window);
     `);
+    expect(sandbox.context.a).toBe(2);
     expect('a' in window).toBe(false);
     try {
         console.log(a);

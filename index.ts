@@ -57,7 +57,7 @@ export const createSandbox = (context: any = {}, options: OPTIONS = {}) => {
         return proxy;
     };
     context = createProxy(context);
-    return (script: string) => {
+    const sandbox = (script: string) => {
         return new Function(
             'window',
             `
@@ -70,4 +70,7 @@ ${useWith ? '};' : ''}
 `
         )(context);
     };
+    sandbox.context = context;
+    sandbox.exec = sandbox;
+    return sandbox;
 };
