@@ -26,7 +26,6 @@ export const createSandbox = (context: any = {}, options: OPTIONS = {}) => {
         interceptEval,
         blacklist = []
     } = options;
-    context = inheritGlobal ? Object.assign(Object.create(global), context) : { ...context };
     const blackmap: BLACKMAP = {};
     for (let i = 0; i < blacklist.length; i++) {
         const name = blacklist[i];
@@ -49,9 +48,6 @@ export const createSandbox = (context: any = {}, options: OPTIONS = {}) => {
                     case 'self':
                     case 'globalThis':
                         return proxy;
-                    case 'screen':
-                    case 'performance':
-                        return window[p];
                     case 'Function':
                         if (interceptFunction) return (...args) => Function(...args).bind(proxy);
                         break;
@@ -59,6 +55,7 @@ export const createSandbox = (context: any = {}, options: OPTIONS = {}) => {
                         if (interceptEval) return code => Function(`return ${code}`).bind(proxy);
                         break;
                 }
+                if (inheritGlobal && !(p in target) && p in window) return window[p];
                 return target[p];
             },
             has(): boolean {
