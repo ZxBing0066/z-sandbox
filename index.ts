@@ -50,7 +50,8 @@ export const createSandbox = (context: any = {}, options: OPTIONS = {}) => {
                     case 'globalThis':
                         return proxy;
                     case 'screen':
-                        return window.screen;
+                    case 'performance':
+                        return window[p];
                     case 'Function':
                         if (interceptFunction) return (...args) => Function(...args).bind(proxy);
                         break;
