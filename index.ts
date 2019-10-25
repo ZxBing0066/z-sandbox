@@ -57,7 +57,7 @@ export const createSandbox = (context: any = {}, options: OPTIONS = {}) => {
                 }
                 if (inheritGlobal && !(p in target) && p in global) {
                     const value = global[p];
-                    if (typeof value === 'function') return value.bind(global);
+                    if (typeof value === 'function' && !value.prototype) return value.bind(global);
                     return value;
                 }
                 return target[p];
