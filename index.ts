@@ -3,8 +3,8 @@ interface OPTIONS {
     useStrict?: boolean;
     // 使用 with 来拦截作用域访问
     useWith?: boolean;
-    // 沙箱中自动继承 window
-    inheritWindow?: boolean;
+    // 沙箱中自动继承全局变量
+    inheritGlobal?: boolean;
     // 黑名单列表
     blacklist?: string[];
     // 拦截 Function
@@ -15,20 +15,18 @@ interface OPTIONS {
 interface BLACKMAP {
     [other: string]: boolean;
 }
-const extend = (origin: any, target: any) => {
-    return Object.assign(Object.create(target), origin);
-};
 
 export const createSandbox = (context: any = {}, options: OPTIONS = {}) => {
+    const global = Function('return this')();
     const {
         useStrict,
         useWith = true,
-        inheritWindow = true,
+        inheritGlobal = true,
         interceptFunction,
         interceptEval,
         blacklist = []
     } = options;
-    context = inheritWindow ? Object.assign(Object.create(window), context) : { ...context };
+    context = inheritGlobal ? Object.assign(Object.create(global), context) : { ...context };
     const blackmap: BLACKMAP = {};
     for (let i = 0; i < blacklist.length; i++) {
         const name = blacklist[i];
@@ -45,9 +43,21 @@ export const createSandbox = (context: any = {}, options: OPTIONS = {}) => {
                     console.error(`Can't assess property: ${p} in blacklist`);
                     return undefined;
                 }
-                if (interceptFunction && p === 'Function') return (...args) => Function(...args).bind(proxy);
-                if (interceptEval && p === 'eval') return code => Function(`return ${code}`).bind(proxy);
-                if (p === 'window' || p === 'global' || p === 'self' || p === 'globalThis') return proxy;
+                switch (p) {
+                    case 'window':
+                    case 'global':
+                    case 'self':
+                    case 'globalThis':
+                        return proxy;
+                    case 'screen':
+                        return window.screen;
+                    case 'Function':
+                        if (interceptFunction) return (...args) => Function(...args).bind(proxy);
+                        break;
+                    case 'eval':
+                        if (interceptEval) return code => Function(`return ${code}`).bind(proxy);
+                        break;
+                }
                 return target[p];
             },
             has(): boolean {
@@ -59,13 +69,13 @@ export const createSandbox = (context: any = {}, options: OPTIONS = {}) => {
     context = createProxy(context);
     const sandbox = (script: string) => {
         return new Function(
-            'window',
+            'context',
             `
-${useWith ? `with (window) {` : ''}
+${useWith ? `with (context) {` : ''}
     (function() {
         ${useStrict ? '"use strict";' : ''}
         ${script}
-    }).bind(window)();
+    }).bind(global)();
 ${useWith ? '};' : ''}
 `
         )(context);

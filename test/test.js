@@ -138,7 +138,7 @@ test('sandbox readme', () => {
         // default: false
         useWith: true,
         // default: true
-        inheritWindow: true,
+        inheritGlobal: true,
         // default: []
         blacklist: ['blacklistContent']
     };
