@@ -55,7 +55,11 @@ export const createSandbox = (context: any = {}, options: OPTIONS = {}) => {
                         if (interceptEval) return code => Function(`return ${code}`).bind(proxy);
                         break;
                 }
-                if (inheritGlobal && !(p in target) && p in window) return window[p];
+                if (inheritGlobal && !(p in target) && p in global) {
+                    const value = global[p];
+                    if (typeof value === 'function') return value.bind(global);
+                    return value;
+                }
                 return target[p];
             },
             has(): boolean {
