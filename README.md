@@ -29,7 +29,7 @@ const sandboxOptions = {
     // default: true
     useWith: true,
     // default: true
-    inheritWindow: true,
+    inheritGlobal: true,
     // default: []
     blacklist: ['blacklistContent']
 };
