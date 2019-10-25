@@ -1,8 +1,17 @@
 # A simple Sandbox implementation for JavaScript
 
+## Preview
+
+![preview](static/preview.gif)
+
+## Demo
+
+[![Edit quirky-microservice-8oqog](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/quirky-microservice-8oqog?fontsize=14)
+
 ## How to use
 
 ### Install from the npm
+
 ```bash
 npm install z-sandbox
 # or
@@ -10,13 +19,14 @@ yarn add z-sandbox
 ```
 
 ### Use in your code
+
 ```javascript
 import { createSandbox } from 'z-sandbox';
 
 const sandboxOptions = {
-    // default: true
-    useStrict: true,
     // default: false
+    useStrict: false,
+    // default: true
     useWith: true,
     // default: true
     inheritWindow: true,
