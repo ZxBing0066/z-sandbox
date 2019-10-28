@@ -1,4 +1,4 @@
-import { createSandbox } from '../build/index.min.js';
+import { createSandbox } from '../lib/';
 import fs from 'fs';
 
 // test for use global variables as common variables
@@ -60,6 +60,7 @@ test('sandbox this', function() {
 });
 
 test('sandbox full test', () => {
+    let local = 'local';
     const sandbox = createSandbox(
         {
             a: 1,
@@ -77,7 +78,6 @@ test('sandbox full test', () => {
         expect(window.a).toBe(2);
         var c = 1;
         expect(c).toBe(1);
-        // expect('c' in window).toBe(false);
         window.c = 10;
         expect(c).toBe(1);
         expect(window.c).toBe(10);
@@ -86,11 +86,12 @@ test('sandbox full test', () => {
         expect(d).toBe(100);
         expect(window.d).toBe(100);
         expect('d' in window).toBe(true);
+        local = 'sandbox';
         e = 'test';
         expect(e).toBe('test');
         expect(window.e).toBe('test');
         delete window.e;
-        // expect('e' in window).toBe(false);
+        expect(window.e).toBe(undefined);
         this.f = 7;
         expect(this.f).toBe(7);
         expect(window.f).toBe(7);
@@ -103,6 +104,73 @@ test('sandbox full test', () => {
         expect(Function('return this')()).toBe(window);
         expect(eval('this')()).toBe(window);
     `);
+    expect(local).toBe('local');
+    expect(sandbox.context.a).toBe(2);
+    expect('a' in window).toBe(false);
+    try {
+        console.log(a);
+    } catch (error) {
+        expect(!!error).toBe(true);
+    }
+    expect('b' in window).toBe(false);
+    try {
+        console.log(b);
+    } catch (error) {
+        expect(!!error).toBe(true);
+    }
+    expect('c' in window).toBe(false);
+    try {
+        console.log(c);
+    } catch (error) {
+        expect(!!error).toBe(true);
+    }
+    expect('d' in window).toBe(false);
+    try {
+        console.log(d);
+    } catch (error) {
+        expect(!!error).toBe(true);
+    }
+    expect('f' in window).toBe(false);
+});
+
+test('sandbox with default options', () => {
+    let local = 'local';
+    const sandbox = createSandbox(
+        {
+            a: 1,
+            b: 2,
+            expect
+        }
+    );
+    sandbox(`
+        var b = 3;
+        expect(b).toBe(3);
+        expect(window.b).toBe(2);
+        a = 2;
+        expect(a).toBe(2);
+        expect(window.a).toBe(2);
+        var c = 1;
+        expect(c).toBe(1);
+        window.c = 10;
+        expect(c).toBe(1);
+        expect(window.c).toBe(10);
+        expect('c' in window).toBe(true);
+        d = 100;
+        expect(d).toBe(100);
+        expect(window.d).toBe(100);
+        expect('d' in window).toBe(true);
+        local = 'sandbox';
+        e = 'test';
+        expect(e).toBe('test');
+        expect(window.e).toBe('test');
+        delete window.e;
+        expect(window.e).toBe(undefined);
+        this.f = 7;
+        expect(this.f).toBe(7);
+        expect(window.f).toBe(7);
+        expect(f).toBe(7);
+    `);
+    expect(local).toBe('local');
     expect(sandbox.context.a).toBe(2);
     expect('a' in window).toBe(false);
     try {

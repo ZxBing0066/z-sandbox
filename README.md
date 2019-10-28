@@ -27,8 +27,6 @@ const sandboxOptions = {
     // default: false
     useStrict: false,
     // default: true
-    useWith: true,
-    // default: true
     inheritGlobal: true,
     // default: []
     blacklist: ['blacklistContent']

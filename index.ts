@@ -1,8 +1,6 @@
 interface OPTIONS {
     // 启用严格模式
     useStrict?: boolean;
-    // 使用 with 来拦截作用域访问
-    useWith?: boolean;
     // 沙箱中自动继承全局变量
     inheritGlobal?: boolean;
     // 黑名单列表
@@ -18,14 +16,7 @@ interface BLACKMAP {
 
 export const createSandbox = (context: any = {}, options: OPTIONS = {}) => {
     const global = Function('return this')();
-    const {
-        useStrict,
-        useWith = true,
-        inheritGlobal = true,
-        interceptFunction,
-        interceptEval,
-        blacklist = []
-    } = options;
+    const { useStrict, inheritGlobal = true, interceptFunction, interceptEval, blacklist = [] } = options;
     const blackmap: BLACKMAP = {};
     for (let i = 0; i < blacklist.length; i++) {
         const name = blacklist[i];
@@ -71,14 +62,14 @@ export const createSandbox = (context: any = {}, options: OPTIONS = {}) => {
     context = createProxy(context);
     const sandbox = (script: string) => {
         return new Function(
-            'context',
+            'global',
             `
-${useWith ? `with (context) {` : ''}
+with (global) {
     (function() {
         ${useStrict ? '"use strict";' : ''}
         ${script}
     }).bind(global)();
-${useWith ? '};' : ''}
+};
 `
         )(context);
     };
